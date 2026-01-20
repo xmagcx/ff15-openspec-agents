@@ -2,6 +2,106 @@
 
 このガイドは、GitHub CopilotでFF15 OpenSpecエージェントを効果的に使用する方法を説明します。
 
+## 概要
+
+FF15 OpenSpecエージェントは、[OpenSpec](https://github.com/Fission-AI/OpenSpec)フレームワークを基盤とした仕様駆動開発ワークフローを提供します。OpenSpecは、AI支援コーディングのための軽量な仕様管理ツールで、実装前に人間とAIが仕様に合意することで、予測可能で監査可能な開発を実現します。
+
+このエージェントチームは、OpenSpecドキュメント（proposal、tasks、design）を作成し、それに基づいて自律的に実装、品質改善、ドキュメント化、PR作成までを行います。
+
+---
+
+## 前提条件
+
+FF15 OpenSpecエージェントを使用する前に、以下の環境が必要です：
+
+- **Node.js** >= 20.19.0（`node --version`で確認）
+- **GitHub Copilot**（VS Codeまたは対応エディタ）
+- **OpenSpec CLI**（以下のセクションでセットアップ）
+- **Git**（バージョン管理とPR作成のため）
+
+---
+
+## OpenSpecのセットアップ
+
+### Step 1: OpenSpec CLIのインストール
+
+**Option A: npm経由でインストール**
+
+```bash
+npm install -g @fission-ai/openspec@latest
+```
+
+インストールを確認：
+
+```bash
+openspec --version
+```
+
+**Option B: Nix経由でインストール（NixOSまたはNixパッケージマネージャー使用時）**
+
+直接実行（インストール不要）：
+
+```bash
+nix run github:Fission-AI/OpenSpec -- init
+```
+
+プロファイルにインストール：
+
+```bash
+nix profile install github:Fission-AI/OpenSpec
+```
+
+### Step 2: プロジェクトの初期化
+
+プロジェクトディレクトリに移動：
+
+```bash
+cd your-project
+```
+
+OpenSpecを初期化：
+
+```bash
+openspec init
+```
+
+初期化プロセスでは：
+- 使用するAIツール（Claude Code, Cursor, Qoderなど）の選択を促されます
+- 選択したツール用のスラッシュコマンドが自動設定されます
+- プロジェクトルートに`AGENTS.md`が作成されます
+- `openspec/`ディレクトリ構造が作成されます
+
+**重要**: 初期化後、AIアシスタントを再起動してスラッシュコマンドを有効化してください。
+
+### Step 3: プロジェクトコンテキストの設定（オプション）
+
+初期化完了後、プロジェクト固有の情報を設定します：
+
+```bash
+# AIアシスタントに以下を依頼：
+"Please read openspec/project.md and help me fill it out with details about my project, tech stack, and conventions"
+```
+
+`openspec/project.md`には、プロジェクト全体で守るべき規約、アーキテクチャパターン、コーディング標準などを記載します。
+
+### Step 4: セットアップの確認
+
+正しくセットアップされたか確認：
+
+```bash
+openspec list
+```
+
+このコマンドで、アクティブな変更フォルダが表示されます（初期状態では空）。
+
+### 詳細情報
+
+- **OpenSpec公式リポジトリ**: https://github.com/Fission-AI/OpenSpec
+- **OpenSpec公式サイト**: https://openspec.dev/
+- **ドキュメント**: https://github.com/Fission-AI/OpenSpec/tree/main/docs
+
+---
+
 ## まず哲学から
 
 FF15 OpenSpecエージェントは**最小限の中断による自律的な実行**に焦点を当てています。明確な仕様駆動プロセスで動作します：
