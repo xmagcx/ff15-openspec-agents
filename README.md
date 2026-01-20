@@ -21,6 +21,36 @@ The agent team is inspired by **Final Fantasy XV** characters, each with distinc
 - **Ignis** - Documentation & Archiving
 - **Lunafreya** - Pull Request Creator
 
+### Team Structure
+
+Noctis acts as the central orchestrator, coordinating specialized agents:
+
+```mermaid
+graph TD
+    Noctis["👑 Noctis<br/>Orchestrator + Spec Creator<br/>━━━━━━━━━━━━━━━<br/>Creates OpenSpec and leads workflow"]
+    
+    Iris["📋 Iris<br/>Issue Management<br/>━━━━━━━━━━━━━━━<br/>Manages GitHub Issues"]
+    Gladiolus["💪 Gladiolus<br/>Implementation<br/>━━━━━━━━━━━━━━━<br/>Builds based on OpenSpec"]
+    Prompto["✨ Prompto<br/>Quality<br/>━━━━━━━━━━━━━━━<br/>Reviews and refines quality"]
+    Ignis["🧠 Ignis<br/>Documentation<br/>━━━━━━━━━━━━━━━<br/>Archives specs and updates docs"]
+    Lunafreya["🌙 Lunafreya<br/>PR Creation<br/>━━━━━━━━━━━━━━━<br/>Creates pull requests"]
+    
+    Noctis --> Iris
+    Noctis --> Gladiolus
+    Noctis --> Prompto
+    Noctis --> Ignis
+    Noctis --> Lunafreya
+    
+    style Noctis fill:#4a6fa5,stroke:#2d4a70,stroke-width:3px,color:#fff
+    style Iris fill:#b05f8a,stroke:#7d4461,stroke-width:2px,color:#fff
+    style Gladiolus fill:#c07020,stroke:#8b5217,stroke-width:2px,color:#fff
+    style Prompto fill:#5b9d5b,stroke:#3d6b3d,stroke-width:2px,color:#fff
+    style Ignis fill:#8464b8,stroke:#5a4580,stroke-width:2px,color:#fff
+    style Lunafreya fill:#4a9ea0,stroke:#2d6d6f,stroke-width:2px,color:#fff
+```
+
+Each agent has a specific domain of expertise and works autonomously within their role, while Noctis ensures cohesive workflow orchestration.
+
 ## Features
 
 ✅ **Specification-Driven Development** - Define specs before implementation using OpenSpec  
@@ -135,15 +165,55 @@ Creates pull requests for completed implementations with proper descriptions and
 
 ## Development Workflow
 
+### OpenSpec-Driven Collaboration
+
+The workflow centers around **OpenSpec** as the single source of truth. Users and Noctis collaboratively create specifications, which all agents reference during implementation:
+
 ```mermaid
-graph LR
-    A[User Request] --> B[Noctis: Create OpenSpec]
-    B --> C[Iris: Create Issue]
-    C --> D[Gladiolus: Implement]
-    D --> E[Prompto: Review & Refactor]
-    E --> F[Ignis: Document]
-    F --> G[Lunafreya: Create PR]
+graph TB
+    User["👤 User"]
+    OpenSpec["📋 OpenSpec<br/>(proposal.md, tasks.md, design.md)"]
+    
+    User -->|"Requirements"| Noctis
+    Noctis["👑 Noctis<br/>(Orchestrator)"]
+    Noctis -->|"Co-create"| OpenSpec
+    User -->|"Approve"| OpenSpec
+    
+    OpenSpec -.->|"Reference"| Iris
+    OpenSpec -.->|"Reference"| Gladiolus
+    OpenSpec -.->|"Reference"| Prompto
+    OpenSpec -.->|"Reference"| Ignis
+    OpenSpec -.->|"Reference"| Lunafreya
+    
+    Iris["📋 Iris<br/>(Issue Mgmt)"]
+    Gladiolus["💪 Gladiolus<br/>(Implementation)"]
+    Prompto["✨ Prompto<br/>(Quality)"]
+    Ignis["🧠 Ignis<br/>(Documentation)"]
+    Lunafreya["🌙 Lunafreya<br/>(PR Creation)"]
+    
+    Noctis -.->|"Delegate"| Iris
+    Noctis -.->|"Delegate"| Gladiolus
+    Noctis -.->|"Delegate"| Prompto
+    Noctis -.->|"Delegate"| Ignis
+    Noctis -.->|"Delegate"| Lunafreya
+    
+    Iris -->|"GitHub Issue"| GitHub["📌 GitHub Issues"]
+    Gladiolus -->|"Code"| Code["💻 Implementation"]
+    Prompto -->|"Quality"| Code
+    Ignis -->|"Update"| Docs["📚 Documentation"]
+    Ignis -->|"Archive"| Archive["🗄️ openspec/changes/archive/"]
+    Lunafreya -->|"Create"| PR["🔀 Pull Request"]
+    
+    style OpenSpec fill:#b8a040,stroke:#8b7830,stroke-width:3px,color:#fff
+    style Noctis fill:#4a6fa5,stroke:#2d4a70,stroke-width:2px,color:#fff
+    style User fill:#6b9d6b,stroke:#4a7a4a,stroke-width:2px,color:#fff
 ```
+
+**Key Points:**
+- 📋 **OpenSpec is central** - All agents reference the same specification
+- 👤 **Human approval required** - Users approve specs before implementation
+- 🔄 **Coordinated execution** - Noctis delegates to specialized agents
+- 📚 **Traceable changes** - All work links back to the original spec
 
 **Typical Flow:**
 

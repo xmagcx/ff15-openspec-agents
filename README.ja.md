@@ -21,6 +21,36 @@ GitHub Copilot エージェントオーケストレーションと OpenSpec に�
 - **Ignis（イグニス）** - ドキュメント & アーカイブ
 - **Lunafreya（ルナフレーナ）** - プルリクエスト作成
 
+### チーム構造
+
+Noctis が中心的なオーケストレーターとして、専門エージェントを調整します：
+
+```mermaid
+graph TD
+    Noctis["👑 Noctis<br/>オーケストレーター + 仕様作成者<br/>━━━━━━━━━━━━━━━<br/>OpenSpecを作成しワークフローを主導"]
+    
+    Iris["📋 Iris<br/>Issue管理<br/>━━━━━━━━━━━━━━━<br/>GitHub Issueを管理"]
+    Gladiolus["💪 Gladiolus<br/>実装<br/>━━━━━━━━━━━━━━━<br/>OpenSpecに基づき構築"]
+    Prompto["✨ Prompto<br/>品質<br/>━━━━━━━━━━━━━━━<br/>レビューして品質を洗練"]
+    Ignis["🧠 Ignis<br/>ドキュメント<br/>━━━━━━━━━━━━━━━<br/>仕様をアーカイブしドキュメントを更新"]
+    Lunafreya["🌙 Lunafreya<br/>PR作成<br/>━━━━━━━━━━━━━━━<br/>プルリクエストを作成"]
+    
+    Noctis --> Iris
+    Noctis --> Gladiolus
+    Noctis --> Prompto
+    Noctis --> Ignis
+    Noctis --> Lunafreya
+    
+    style Noctis fill:#4a6fa5,stroke:#2d4a70,stroke-width:3px,color:#fff
+    style Iris fill:#b05f8a,stroke:#7d4461,stroke-width:2px,color:#fff
+    style Gladiolus fill:#c07020,stroke:#8b5217,stroke-width:2px,color:#fff
+    style Prompto fill:#5b9d5b,stroke:#3d6b3d,stroke-width:2px,color:#fff
+    style Ignis fill:#8464b8,stroke:#5a4580,stroke-width:2px,color:#fff
+    style Lunafreya fill:#4a9ea0,stroke:#2d6d6f,stroke-width:2px,color:#fff
+```
+
+各エージェントは専門領域を持ち、その役割内で自律的に動作します。Noctis は一貫性のあるワークフローオーケストレーションを保証します。
+
 ## 特徴
 
 ✅ **仕様駆動開発** - OpenSpec を使って実装前に仕様を定義  
@@ -135,15 +165,55 @@ OpenSpec に対してコードをレビューし、レビューポリシーを�
 
 ## 開発ワークフロー
 
+### OpenSpec による協調作業
+
+ワークフローは **OpenSpec** を信頼できる唯一の情報源として中心に据えています。ユーザーと Noctis が協力して仕様を作成し、すべてのエージェントが実装中にそれを参照します：
+
 ```mermaid
-graph LR
-    A[ユーザー要求] --> B[Noctis: OpenSpec 作成]
-    B --> C[Iris: Issue 作成]
-    C --> D[Gladiolus: 実装]
-    D --> E[Prompto: レビュー & リファクタリング]
-    E --> F[Ignis: ドキュメント化]
-    F --> G[Lunafreya: PR 作成]
+graph TB
+    User["👤 ユーザー"]
+    OpenSpec["📋 OpenSpec<br/>(proposal.md, tasks.md, design.md)"]
+    
+    User -->|"要件提示"| Noctis
+    Noctis["👑 Noctis<br/>(オーケストレーター)"]
+    Noctis -->|"共同作成"| OpenSpec
+    User -->|"承認"| OpenSpec
+    
+    OpenSpec -.->|"参照"| Iris
+    OpenSpec -.->|"参照"| Gladiolus
+    OpenSpec -.->|"参照"| Prompto
+    OpenSpec -.->|"参照"| Ignis
+    OpenSpec -.->|"参照"| Lunafreya
+    
+    Iris["📋 Iris<br/>(Issue管理)"]
+    Gladiolus["💪 Gladiolus<br/>(実装)"]
+    Prompto["✨ Prompto<br/>(品質)"]
+    Ignis["🧠 Ignis<br/>(ドキュメント)"]
+    Lunafreya["🌙 Lunafreya<br/>(PR作成)"]
+    
+    Noctis -.->|"委任"| Iris
+    Noctis -.->|"委任"| Gladiolus
+    Noctis -.->|"委任"| Prompto
+    Noctis -.->|"委任"| Ignis
+    Noctis -.->|"委任"| Lunafreya
+    
+    Iris -->|"GitHub Issue"| GitHub["📌 GitHub Issues"]
+    Gladiolus -->|"コード実装"| Code["💻 実装コード"]
+    Prompto -->|"品質改善"| Code
+    Ignis -->|"ドキュメント更新"| Docs["📚 ドキュメント"]
+    Ignis -->|"アーカイブ"| Archive["🗄️ openspec/changes/archive/"]
+    Lunafreya -->|"プルリクエスト"| PR["🔀 Pull Request"]
+    
+    style OpenSpec fill:#b8a040,stroke:#8b7830,stroke-width:3px,color:#fff
+    style Noctis fill:#4a6fa5,stroke:#2d4a70,stroke-width:2px,color:#fff
+    style User fill:#6b9d6b,stroke:#4a7a4a,stroke-width:2px,color:#fff
 ```
+
+**重要なポイント:**
+- 📋 **OpenSpec が中心** - すべてのエージェントが同じ仕様を参照
+- 👤 **人間の承認が必要** - 実装前にユーザーが仕様を承認
+- 🔄 **調整された実行** - Noctis が専門エージェントに委任
+- 📚 **追跡可能な変更** - すべての作業が元の仕様にリンク
 
 **典型的なフロー:**
 
