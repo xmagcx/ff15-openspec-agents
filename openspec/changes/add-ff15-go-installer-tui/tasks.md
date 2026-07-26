@@ -10,12 +10,14 @@
 - [x] 2.2 Add mandatory tool handling for Engram, CodeGraph, and OpenSpec
 - [x] 2.3 Add optional tool handling for Headroom and RTK
 - [x] 2.4 Add Linux/Windows OS detection and platform-aware planning
+- [x] 2.5 Add optional OpenSpec viewer handling for Spek and Dossier
 
 ## 3. Project file generation and patching
 
 - [x] 3.1 Create/update target markdown/config files per selected ecosystem
 - [x] 3.2 Inject managed guidance into `AGENTS.md` and `CLAUDE.md`
 - [x] 3.3 Inject CodeGraph and RTK guidance where selected
+- [x] 3.4 Sync FF15 agent, prompt, and policy assets into Claude/Kiro/OpenCode target folders during init
 
 ## 4. Validation
 

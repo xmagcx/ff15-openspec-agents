@@ -61,6 +61,8 @@ const (
 	ToolOpenSpec  ToolName = "openspec"
 	ToolHeadroom  ToolName = "headroom"
 	ToolRTK       ToolName = "rtk"
+	ToolSpek      ToolName = "spek"
+	ToolDossier   ToolName = "dossier"
 )
 
 func ParseToolName(raw string) (ToolName, bool) {
@@ -75,19 +77,24 @@ func ParseToolName(raw string) (ToolName, bool) {
 		return ToolHeadroom, true
 	case "rtk":
 		return ToolRTK, true
+	case "spek":
+		return ToolSpek, true
+	case "dossier":
+		return ToolDossier, true
 	default:
 		return "", false
 	}
 }
 
 func isOptionalTool(tool ToolName) bool {
-	return tool == ToolHeadroom || tool == ToolRTK
+	return tool == ToolHeadroom || tool == ToolRTK || tool == ToolSpek || tool == ToolDossier
 }
 
 type StepKind string
 
 const (
 	StepInstall StepKind = "install"
+	StepSync    StepKind = "sync"
 	StepPatch   StepKind = "patch"
 )
 

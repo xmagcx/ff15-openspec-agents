@@ -38,11 +38,17 @@ The init flow SHALL always include mandatory tools and SHALL allow users to opt 
 - **WHEN** the init flow builds an installation plan
 - **THEN** Engram, CodeGraph, and OpenSpec are included automatically
 
-#### Scenario: Optional tools are selectable
+#### Scenario: Optional workflow tools are selectable
 
 - **WHEN** the user selects Headroom and RTK
 - **THEN** the plan includes setup checkpoints for both tools
 - **AND** omits unselected optional tools
+
+#### Scenario: Optional OpenSpec viewers are selectable
+
+- **WHEN** the user selects Spek and Dossier
+- **THEN** the plan includes setup checkpoints for both viewers
+- **AND** deploys Spek under the target project's local tooling path
 
 ### Requirement: Platform-aware local installation planning
 
@@ -87,6 +93,20 @@ The init flow SHALL create missing project files and update existing ones with m
 - **WHEN** a selected ecosystem requires `AGENTS.md` or `CLAUDE.md` and the file already exists
 - **THEN** the system updates or appends only the managed content block
 - **AND** preserves unrelated user content
+
+#### Scenario: Init deploys ecosystem guidance into project path
+
+- **WHEN** the user approves `ff15 init` for Claude Code, Kiro, Pi Agents, and OpenCode
+- **THEN** the system patches `CLAUDE.md`, `.claude/agents/ff15-openspec-agents.md`, `.kiro/steering/ff15-openspec-agents.md`, `AGENTS.md`, `.pi/AGENTS.md`, and `.opencode/agents/ff15-openspec-agents.md` under the target project root
+
+### Requirement: Ecosystem agent asset deployment
+
+The init flow SHALL deploy FF15 agent, prompt, and policy assets for ecosystems with dedicated configuration folders.
+
+#### Scenario: Claude, Kiro, and OpenCode assets are synced
+
+- **WHEN** the user approves `ff15 init` for Claude Code, Kiro, or OpenCode
+- **THEN** the system syncs the FF15 agent set (`gladiolus`, `ignis`, `iris`, `lunafreya`, `noctis`, `prompto`), prompts, and policy docs into that ecosystem's target folder under the project root
 
 ### Requirement: Engram and CodeGraph guidance injection
 

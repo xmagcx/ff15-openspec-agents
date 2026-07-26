@@ -21,6 +21,12 @@ func ExecutePlan(plan Plan, stdout io.Writer) error {
 				return err
 			}
 			fmt.Fprintln(stdout, "  OK")
+		case StepSync:
+			if err := syncInitAssets(step.FilePath, stdout); err != nil {
+				fmt.Fprintf(stdout, "  FAIL: %v\n", err)
+				return err
+			}
+			fmt.Fprintln(stdout, "  OK")
 		case StepPatch:
 			if err := applyManagedPatch(step.FilePath, step.ManagedText); err != nil {
 				fmt.Fprintf(stdout, "  FAIL: %v\n", err)

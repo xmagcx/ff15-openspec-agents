@@ -294,6 +294,30 @@ func syncFiles(cfg syncFilesConfig) (int, error) {
 	return synced, nil
 }
 
+func syncInitAssets(targetDir string, stdout io.Writer) error {
+	assets := syncAssetsFS()
+	for _, item := range []struct {
+		sourceDir string
+		pattern   string
+	}{
+		{sourceDir: "agents", pattern: ".agent.md"},
+		{sourceDir: "prompts", pattern: ".prompt.md"},
+		{sourceDir: "docs", pattern: ".md"},
+	} {
+		if _, err := syncFiles(syncFilesConfig{
+			SourceFS:  assets,
+			SourceDir: item.sourceDir,
+			TargetDir: targetDir,
+			Pattern:   item.pattern,
+			Force:     true,
+			Stdout:    stdout,
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func copyFile(sourceFS fs.FS, sourceFile, targetFile string) error {
 	content, err := fs.ReadFile(sourceFS, sourceFile)
 	if err != nil {

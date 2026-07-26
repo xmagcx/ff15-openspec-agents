@@ -80,11 +80,21 @@ Verify installation:
 openspec --version
 ```
 
-### 2. Initialize Your Project
+### 2. OpenSpec Viewers
+
+If you want a dedicated viewer for OpenSpec artifacts, these options fit this stack well and remain optional. You can include them during setup with `ff15 init --optional-tools spek,dossier`.
+
+- **[spek](https://github.com/spekhq/spek)** - Best general-purpose viewer. Read-only, local-first, web/VS Code/IntelliJ support, and static site generation via GitHub Action.
+  - Quick start: `npx @spekjs/web` or install the VS Code / IntelliJ extension.
+- **[dossier](https://github.com/fselich/dossier)** - Best terminal-native option. Lightweight TUI for developers who prefer keyboard navigation.
+  - Quick start: `go install github.com/fselich/dossier/cmd/dossier@latest`
+
+### 3. Initialize Your Project
 
 ```bash
 cd your-project
 openspec init
+ff15 init --target .
 ```
 
 The initialization process:
@@ -93,26 +103,27 @@ The initialization process:
 - Creates `AGENTS.md` in your project root
 - Sets up `openspec/` directory structure
 - Configures slash commands for your AI assistant
+- Patches the selected ecosystem guidance files under the target project root
+- Syncs FF15 agent, prompt, and policy assets into `.claude/agents`, `.kiro/steering`, and `.opencode/agents` when those ecosystems are selected
 
 **Important**: Restart your AI assistant after initialization to enable slash commands.
 
-### 3. Deploy FF15 Agents
+### 4. Optional: Re-sync FF15 Assets
 
-Use the Go CLI from this repository:
+Use the Go CLI from this repository when you want to re-apply embedded agent, prompt, and policy assets:
 
 ```bash
 ff15 sync --target .
 ```
 
-This will:
+This command can:
 
-- Sync agent definitions to `.github/agents/`
-- Sync prompt definitions to `.github/prompts/`
-- Deploy policy documents to `docs/`
-- Update the managed policy block in `AGENTS.md`
+- Re-sync agent definitions into ecosystem-specific folders
+- Re-sync prompt definitions and policy docs
+- Re-apply managed policy blocks when needed
 - Read sync assets from the `ff15` binary's embedded bundle (no local `.claude/skills/ff15-openspec-agents-sync` required at runtime)
 
-### 4. Start Developing
+### 5. Start Developing
 
 Request your AI assistant to create a proposal:
 

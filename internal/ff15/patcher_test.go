@@ -1,6 +1,7 @@
 package ff15
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -42,5 +43,34 @@ func TestApplyManagedPatchReplacesManagedBlockOnly(t *testing.T) {
 	}
 	if strings.Contains(text, "old") || !strings.Contains(text, "new guidance") {
 		t.Fatalf("expected managed block replaced: %s", text)
+	}
+}
+
+func TestExecutePlanSyncsEmbeddedAssetsForInit(t *testing.T) {
+	targetDir := filepath.Join(t.TempDir(), ".claude", "agents")
+	plan := Plan{
+		Platform: PlatformLinux,
+		Steps: []Step{{
+			Kind:     StepSync,
+			Title:    "Sync Claude agent assets",
+			FilePath: targetDir,
+		}},
+	}
+	if err := ExecutePlan(plan, io.Discard); err != nil {
+		t.Fatalf("ExecutePlan() error = %v", err)
+	}
+	for _, path := range []string{
+		filepath.Join(targetDir, "gladiolus.agent.md"),
+		filepath.Join(targetDir, "ignis.agent.md"),
+		filepath.Join(targetDir, "iris.agent.md"),
+		filepath.Join(targetDir, "lunafreya.agent.md"),
+		filepath.Join(targetDir, "noctis.agent.md"),
+		filepath.Join(targetDir, "prompto.agent.md"),
+		filepath.Join(targetDir, "noctis.prompt.md"),
+		filepath.Join(targetDir, "development-policy.md"),
+	} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected synced asset %s: %v", path, err)
+		}
 	}
 }

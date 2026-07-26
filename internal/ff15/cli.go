@@ -39,7 +39,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	dryRun := fs.Bool("dry-run", false, "print checkpoints without applying changes")
 	yes := fs.Bool("yes", false, "approve the generated plan without prompting")
 	ecosystemsCSV := fs.String("ecosystems", "", "comma-separated ecosystems: claude,kiro,pi,opencode")
-	optionalToolsCSV := fs.String("optional-tools", "", "comma-separated optional tools: headroom,rtk")
+	optionalToolsCSV := fs.String("optional-tools", "", "comma-separated optional tools: headroom,rtk,spek,dossier")
 	fs.Usage = func() {
 		printUsage(stdout)
 		fmt.Fprintln(stdout)
@@ -82,7 +82,7 @@ func runInit(args []string, stdin io.Reader, stdout io.Writer) error {
 	dryRun := fs.Bool("dry-run", false, "print checkpoints without applying changes")
 	yes := fs.Bool("yes", false, "approve the generated plan without prompting")
 	ecosystemsCSV := fs.String("ecosystems", "", "comma-separated ecosystems: claude,kiro,pi,opencode")
-	optionalToolsCSV := fs.String("optional-tools", "", "comma-separated optional tools: headroom,rtk")
+	optionalToolsCSV := fs.String("optional-tools", "", "comma-separated optional tools: headroom,rtk,spek,dossier")
 	fs.Usage = func() {
 		printUsage(stdout)
 		fmt.Fprintln(stdout)

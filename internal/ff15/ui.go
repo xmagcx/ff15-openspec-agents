@@ -103,10 +103,12 @@ func newWizardModel(cfg Config, platform Platform) wizardModel {
 		ecosystemItems[i].selected = selectedEcosystems[ecosystem]
 	}
 
-	toolValues := []ToolName{ToolHeadroom, ToolRTK}
+	toolValues := []ToolName{ToolHeadroom, ToolRTK, ToolSpek, ToolDossier}
 	toolItems := []optionItem{
 		{label: "Headroom", detail: "Optional Python-powered AI workflow helper."},
 		{label: "RTK", detail: "Optional Cargo-installed command prefix helper."},
+		{label: "Spek", detail: "Optional OpenSpec web viewer scaffolded locally under .ff15/tools/."},
+		{label: "Dossier", detail: "Optional OpenSpec terminal viewer installed with Go."},
 	}
 	selectedTools := map[ToolName]bool{}
 	for _, tool := range normalizeTools(cfg.OptionalTools) {

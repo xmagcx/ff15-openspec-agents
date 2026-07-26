@@ -20,7 +20,16 @@ func BuildPlan(targetRoot string, platform Platform, ecosystems []Ecosystem, opt
 		SelectedTools: selectedTools,
 	}
 	for _, tool := range selectedTools {
-		plan.Steps = append(plan.Steps, installStepForTool(tool, platform))
+		plan.Steps = append(plan.Steps, installStepForTool(tool, platform, targetRoot))
+	}
+	for _, ecosystem := range normalizedEcosystems {
+		if assetDir := ecosystemAssetDir(targetRoot, ecosystem); assetDir != "" {
+			plan.Steps = append(plan.Steps, Step{
+				Kind:     StepSync,
+				Title:    fmt.Sprintf("Sync %s agent assets", ecosystemDisplayName(ecosystem)),
+				FilePath: assetDir,
+			})
+		}
 	}
 	files := map[string]string{}
 	for _, ecosystem := range normalizedEcosystems {
@@ -39,7 +48,7 @@ func BuildPlan(targetRoot string, platform Platform, ecosystems []Ecosystem, opt
 	return plan, nil
 }
 
-func installStepForTool(tool ToolName, platform Platform) Step {
+func installStepForTool(tool ToolName, platform Platform, targetRoot string) Step {
 	title := fmt.Sprintf("Install %s", strings.ToUpper(string(tool[:1]))+string(tool[1:]))
 	switch tool {
 	case ToolOpenSpec:
@@ -76,15 +85,11 @@ func installStepForTool(tool ToolName, platform Platform) Step {
 		if platform == PlatformWindows {
 			command = "py -m pip install --user \"headroom-ai[all]\""
 		}
-		verify := "headroom --version"
-		if platform == PlatformWindows {
-			verify = "headroom --version"
-		}
 		return Step{
 			Kind:     StepInstall,
 			Title:    title,
 			Commands: []string{command},
-			Verify:   verify,
+			Verify:   "headroom --version",
 			ManualHint: platformHint(platform,
 				"Headroom CLI ships from the PyPI package. If Python or pip is missing, install Python 3.10+ first.",
 				"Headroom CLI ships from the PyPI package. If `py` or pip is missing, install Python 3.10+ first.",
@@ -101,9 +106,63 @@ func installStepForTool(tool ToolName, platform Platform) Step {
 				"RTK installs via Cargo in this first slice. Install Rust/Cargo first if the command fails.",
 			),
 		}
+	case ToolDossier:
+		return Step{
+			Kind:     StepInstall,
+			Title:    title,
+			Commands: []string{"go install github.com/fselich/dossier/cmd/dossier@latest"},
+			Verify:   "dossier --help",
+			ManualHint: platformHint(platform,
+				"Dossier installs from Go source. Install Go 1.25+ first if the command fails.",
+				"Dossier installs from Go source. Install Go 1.25+ first if the command fails.",
+			),
+		}
+	case ToolSpek:
+		dir := filepath.Join(targetRoot, ".ff15", "tools", "spek")
+		return Step{
+			Kind:  StepInstall,
+			Title: title,
+			Commands: []string{
+				spekCloneCommand(platform, dir),
+				spekInstallCommand(platform, dir),
+			},
+			Verify: spekVerifyCommand(platform, dir),
+			ManualHint: platformHint(platform,
+				fmt.Sprintf("Run `cd %s && npm run dev` to launch Spek locally, or install the VS Code / IntelliJ extension instead.", filepath.ToSlash(dir)),
+				fmt.Sprintf("Run `cd %s; npm run dev` to launch Spek locally, or install the VS Code / IntelliJ extension instead.", filepath.ToSlash(dir)),
+			),
+		}
 	default:
 		return Step{Kind: StepInstall, Title: title}
 	}
+}
+
+func spekCloneCommand(platform Platform, dir string) string {
+	if platform == PlatformWindows {
+		return fmt.Sprintf("$dir = %s; $parent = Split-Path -Parent $dir; New-Item -ItemType Directory -Force -Path $parent | Out-Null; if (Test-Path (Join-Path $dir '.git')) { git -C $dir pull --ff-only } else { git clone https://github.com/spekhq/spek.git $dir }", shellQuote(platform, dir))
+	}
+	return fmt.Sprintf("dir=%s; parent=$(dirname \"$dir\"); mkdir -p \"$parent\"; if [ -d \"$dir/.git\" ]; then git -C \"$dir\" pull --ff-only; else git clone https://github.com/spekhq/spek.git \"$dir\"; fi", shellQuote(platform, dir))
+}
+
+func spekInstallCommand(platform Platform, dir string) string {
+	if platform == PlatformWindows {
+		return fmt.Sprintf("Set-Location %s; npm install", shellQuote(platform, dir))
+	}
+	return fmt.Sprintf("cd %s && npm install", shellQuote(platform, dir))
+}
+
+func spekVerifyCommand(platform Platform, dir string) string {
+	if platform == PlatformWindows {
+		return fmt.Sprintf("Test-Path (Join-Path %s 'packages\\web')", shellQuote(platform, dir))
+	}
+	return fmt.Sprintf("test -d %s/packages/web", shellQuote(platform, dir))
+}
+
+func shellQuote(platform Platform, value string) string {
+	if platform == PlatformWindows {
+		return "'" + strings.ReplaceAll(value, "'", "''") + "'"
+	}
+	return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
 }
 
 func filesForEcosystem(targetRoot string, ecosystem Ecosystem, tools []ToolName) map[string]string {

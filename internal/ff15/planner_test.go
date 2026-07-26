@@ -23,6 +23,7 @@ func TestBuildPlanIncludesMandatoryToolsAndSelectedEcosystems(t *testing.T) {
 
 	wantFiles := map[string]bool{
 		filepath.Join(targetRoot, "CLAUDE.md"):                                      false,
+		filepath.Join(targetRoot, ".claude", "agents", "ff15-openspec-agents.md"):   false,
 		filepath.Join(targetRoot, "AGENTS.md"):                                      false,
 		filepath.Join(targetRoot, ".pi", "AGENTS.md"):                               false,
 		filepath.Join(targetRoot, ".opencode", "agents", "ff15-openspec-agents.md"): false,
@@ -41,6 +42,61 @@ func TestBuildPlanIncludesMandatoryToolsAndSelectedEcosystems(t *testing.T) {
 	}
 }
 
+func TestBuildPlanPatchesManagedFilesIntoTargetRootOnInit(t *testing.T) {
+	targetRoot := t.TempDir()
+	plan, err := BuildPlan(targetRoot, PlatformLinux, []Ecosystem{EcosystemClaude, EcosystemKiro, EcosystemPi, EcosystemOpenCode}, nil)
+	if err != nil {
+		t.Fatalf("BuildPlan() error = %v", err)
+	}
+
+	wantFiles := map[string]bool{
+		filepath.Join(targetRoot, "CLAUDE.md"):                                      false,
+		filepath.Join(targetRoot, ".claude", "agents", "ff15-openspec-agents.md"):   false,
+		filepath.Join(targetRoot, ".kiro", "steering", "ff15-openspec-agents.md"):   false,
+		filepath.Join(targetRoot, "AGENTS.md"):                                      false,
+		filepath.Join(targetRoot, ".pi", "AGENTS.md"):                               false,
+		filepath.Join(targetRoot, ".opencode", "agents", "ff15-openspec-agents.md"): false,
+	}
+	for _, step := range plan.Steps {
+		if step.Kind == StepPatch {
+			if _, ok := wantFiles[step.FilePath]; ok {
+				wantFiles[step.FilePath] = true
+			}
+		}
+	}
+	for path, seen := range wantFiles {
+		if !seen {
+			t.Fatalf("expected init to patch %s", path)
+		}
+	}
+}
+
+func TestBuildPlanIncludesAssetSyncStepsForSelectedEcosystems(t *testing.T) {
+	targetRoot := t.TempDir()
+	plan, err := BuildPlan(targetRoot, PlatformLinux, []Ecosystem{EcosystemClaude, EcosystemKiro, EcosystemPi, EcosystemOpenCode}, nil)
+	if err != nil {
+		t.Fatalf("BuildPlan() error = %v", err)
+	}
+
+	wantDirs := map[string]bool{
+		filepath.Join(targetRoot, ".claude", "agents"):   false,
+		filepath.Join(targetRoot, ".kiro", "steering"):   false,
+		filepath.Join(targetRoot, ".opencode", "agents"): false,
+	}
+	for _, step := range plan.Steps {
+		if step.Kind == StepSync {
+			if _, ok := wantDirs[step.FilePath]; ok {
+				wantDirs[step.FilePath] = true
+			}
+		}
+	}
+	for path, seen := range wantDirs {
+		if !seen {
+			t.Fatalf("expected init to sync assets into %s", path)
+		}
+	}
+}
+
 func TestInstallStepForToolUsesRealCommands(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -52,15 +108,17 @@ func TestInstallStepForToolUsesRealCommands(t *testing.T) {
 		{name: "codegraph", tool: ToolCodeGraph, wantSub: "npm install -g @colbymchenry/codegraph@latest", verify: "codegraph --version"},
 		{name: "openspec", tool: ToolOpenSpec, wantSub: "npm install -g @fission-ai/openspec@latest", verify: "openspec --version"},
 		{name: "rtk", tool: ToolRTK, wantSub: "cargo install --git https://github.com/rtk-ai/rtk rtk", verify: "rtk --help"},
+		{name: "dossier", tool: ToolDossier, wantSub: "go install github.com/fselich/dossier/cmd/dossier@latest", verify: "dossier --help"},
+		{name: "spek", tool: ToolSpek, wantSub: "git clone https://github.com/spekhq/spek.git", verify: "packages/web"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			step := installStepForTool(tt.tool, PlatformLinux)
-			if len(step.Commands) == 0 || !strings.Contains(step.Commands[0], tt.wantSub) {
+			step := installStepForTool(tt.tool, PlatformLinux, "/tmp/project")
+			if len(step.Commands) == 0 || !strings.Contains(strings.Join(step.Commands, "\n"), tt.wantSub) {
 				t.Fatalf("expected command containing %q, got %v", tt.wantSub, step.Commands)
 			}
-			if step.Verify != tt.verify {
-				t.Fatalf("expected verify %q, got %q", tt.verify, step.Verify)
+			if !strings.Contains(step.Verify, tt.verify) {
+				t.Fatalf("expected verify containing %q, got %q", tt.verify, step.Verify)
 			}
 		})
 	}
