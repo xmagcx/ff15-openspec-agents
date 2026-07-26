@@ -1,29 +1,29 @@
 ---
 name: ff15-openspec-agents-sync
-description: FF15インスパイアのOpenSpecワークフロー用GitHub Copilotエージェント。Noctis（オーケストレーター + OpenSpec作成）、Iris（Issue管理）、Gladiolus（実装）、Prompto（コード品質）、Ignis（ドキュメント + アーカイブ）、Lunafreya（PR作成）を含むチーム。
+description: FF15-inspired GitHub Copilot agents for OpenSpec workflows. Team includes Noctis (orchestrator + OpenSpec author), Iris (issue management), Gladiolus (implementation), Prompto (code quality), Ignis (documentation + archival), and Lunafreya (PR creation).
 ---
 
 # FF15 Copilot Agents - OpenSpec Edition
 
-FF15チームのエージェント定義をプロジェクトに同期するスキル。
+Skill for syncing FF15 team agent definitions to the project.
 
-## クイックスタート
+## Quick Start
 
 ```bash
 python .claude/skills/ff15-openspec-agents-sync/scripts/sync_agents.py --target .
 ```
 
-## エージェント
+## Agents
 
-- **Noctis** - オーケストレーター + OpenSpec作成
-- **Iris** - Issue管理
-- **Gladiolus** - 実装
-- **Prompto** - コード品質
-- **Ignis** - ドキュメント + アーカイブ
-- **Lunafreya** - PR作成
+- **Noctis** - Orchestrator + OpenSpec author
+- **Iris** - Issue management
+- **Gladiolus** - Implementation
+- **Prompto** - Code quality
+- **Ignis** - Documentation + archival
+- **Lunafreya** - PR creation
 
-## 詳細
+## Details
 
-- 使い方: [USAGE.md](USAGE.md)
-- エージェント定義: `agents/*.agent.md`
-- ポリシー: `docs/*-policy.md`
+- Usage: [USAGE.md](USAGE.md)
+- Agent definitions: `agents/*.agent.md`
+- Policies: `docs/*-policy.md`

@@ -1,13 +1,13 @@
-# 開発ポリシー
+# Development Policy
 
-## コーディング規約
+## Coding Conventions
 
-- ファイル名: kebab-case（例: `user-handler.ts`）
-- 関数: アロー関数を優先
-- 型注釈: 明示的に記述
+- File names: kebab-case (e.g., `user-handler.ts`)
+- Functions: Prefer arrow functions
+- Type annotations: Write explicitly
 
-## 実装の基本方針
+## Implementation Guidelines
 
-- TDD原則に従う（テストファースト）
-- OpenSpec仕様に準拠
-- コードは自己説明的に記述
+- Follow TDD principles (test-first)
+- Adhere to OpenSpec specifications
+- Write self-documenting code

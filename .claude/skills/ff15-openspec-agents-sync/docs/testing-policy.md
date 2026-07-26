@@ -1,12 +1,12 @@
-# テストポリシー
+# Testing Policy
 
-## テスト作成基準
+## Test Creation Criteria
 
-- すべての関数にユニットテストを作成
-- カバレッジ目標: 80%以上
-- エッジケースを考慮
+- Create unit tests for all functions
+- Coverage target: 80% or higher
+- Consider edge cases
 
-## テスト実行基準
+## Test Execution Criteria
 
-- PR作成前に全テストが通過すること
-- CIで自動実行されること
+- All tests must pass before PR creation
+- Tests must run automatically in CI

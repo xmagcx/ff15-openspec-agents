@@ -1,1 +1,6 @@
 .tmp/
+# Local Pi runtime state
+.atl/
+.serena/
+.codegraph/
+dist/

@@ -1,530 +1,529 @@
-# FF15 Copilot Agents - OpenSpec Edition - 使用ガイド
+# FF15 Copilot Agents - OpenSpec Edition - Usage Guide
 
-このガイドは、GitHub CopilotでFF15 OpenSpecエージェントを効果的に使用する方法を説明します。
+This guide explains how to use the FF15 OpenSpec agents effectively with GitHub Copilot.
 
-## 概要
+## Overview
 
-FF15 OpenSpecエージェントは、[OpenSpec](https://github.com/Fission-AI/OpenSpec)フレームワークを基盤とした仕様駆動開発ワークフローを提供します。OpenSpecは、AI支援コーディングのための軽量な仕様管理ツールで、実装前に人間とAIが仕様に合意することで、予測可能で監査可能な開発を実現します。
+FF15 OpenSpec agents provide a spec-driven development workflow built on the [OpenSpec](https://github.com/Fission-AI/OpenSpec) framework. OpenSpec is a lightweight spec management tool for AI-assisted coding that enables predictable and auditable development by having humans and AI agree on specs before implementation.
 
-このエージェントチームは、OpenSpecドキュメント（proposal、tasks、design）を作成し、それに基づいて自律的に実装、品質改善、ドキュメント化、PR作成までを行います。
-
----
-
-## 前提条件
-
-FF15 OpenSpecエージェントを使用する前に、以下の環境が必要です：
-
-- **Node.js** >= 20.19.0（`node --version`で確認）
-- **GitHub Copilot**（VS Codeまたは対応エディタ）
-- **OpenSpec CLI**（以下のセクションでセットアップ）
-- **Git**（バージョン管理とPR作成のため）
+This agent team creates OpenSpec documents (proposal, tasks, design) and then autonomously implements, improves quality, documents, and creates PRs based on those specs.
 
 ---
 
-## OpenSpecのセットアップ
+## Prerequisites
 
-### Step 1: OpenSpec CLIのインストール
+Before using the FF15 OpenSpec agents, you need the following environment:
 
-**Option A: npm経由でインストール**
+- **Node.js** >= 20.19.0 (check with `node --version`)
+- **GitHub Copilot** (VS Code or compatible editor)
+- **OpenSpec CLI** (setup in the following section)
+- **Git** (for version control and PR creation)
+
+---
+
+## OpenSpec Setup
+
+### Step 1: Install OpenSpec CLI
+
+**Option A: Install via npm**
 
 ```bash
 npm install -g @fission-ai/openspec@latest
 ```
 
-インストールを確認：
+Verify installation:
 
 ```bash
 openspec --version
 ```
 
-**Option B: Nix経由でインストール（NixOSまたはNixパッケージマネージャー使用時）**
+**Option B: Install via Nix (for NixOS or Nix package manager users)**
 
-直接実行（インストール不要）：
+Run directly (no installation needed):
 
 ```bash
 nix run github:Fission-AI/OpenSpec -- init
 ```
 
-プロファイルにインストール：
+Install to profile:
 
 ```bash
 nix profile install github:Fission-AI/OpenSpec
 ```
 
-### Step 2: プロジェクトの初期化
+### Step 2: Initialize the Project
 
-プロジェクトディレクトリに移動：
+Navigate to your project directory:
 
 ```bash
 cd your-project
 ```
 
-OpenSpecを初期化：
+Initialize OpenSpec:
 
 ```bash
 openspec init
 ```
 
-初期化プロセスでは：
-- 使用するAIツール（Claude Code, Cursor, Qoderなど）の選択を促されます
-- 選択したツール用のスラッシュコマンドが自動設定されます
-- プロジェクトルートに`AGENTS.md`が作成されます
-- `openspec/`ディレクトリ構造が作成されます
+During the initialization process:
+- You will be prompted to select your AI tool (Claude Code, Cursor, Qoder, etc.)
+- Slash commands for the selected tool are automatically configured
+- `AGENTS.md` is created at the project root
+- The `openspec/` directory structure is created
 
-**重要**: 初期化後、AIアシスタントを再起動してスラッシュコマンドを有効化してください。
+**Important**: After initialization, restart your AI assistant to enable the slash commands.
 
-### Step 3: プロジェクトコンテキストの設定（オプション）
+### Step 3: Set Up Project Context (Optional)
 
-初期化完了後、プロジェクト固有の情報を設定します：
+After initialization, configure project-specific information:
 
 ```bash
-# AIアシスタントに以下を依頼：
+# Ask your AI assistant:
 "Please read openspec/project.md and help me fill it out with details about my project, tech stack, and conventions"
 ```
 
-`openspec/project.md`には、プロジェクト全体で守るべき規約、アーキテクチャパターン、コーディング標準などを記載します。
+In `openspec/project.md`, document the conventions, architecture patterns, coding standards, etc. to be followed across the project.
 
-### Step 4: セットアップの確認
+### Step 4: Verify Setup
 
-正しくセットアップされたか確認：
+Verify that everything is set up correctly:
 
 ```bash
 openspec list
 ```
 
-このコマンドで、アクティブな変更フォルダが表示されます（初期状態では空）。
+This command shows active change folders (empty in the initial state).
 
-### 詳細情報
+### Further Information
 
-- **OpenSpec公式リポジトリ**: https://github.com/Fission-AI/OpenSpec
-- **OpenSpec公式サイト**: https://openspec.dev/
-- **ドキュメント**: https://github.com/Fission-AI/OpenSpec/tree/main/docs
-
----
-
-## まず哲学から
-
-FF15 OpenSpecエージェントは**最小限の中断による自律的な実行**に焦点を当てています。明確な仕様駆動プロセスで動作します：
-- **仕様が最優先** OpenSpecドキュメントを通じて
-- **ユーザー介入は最小限**（承認 + 検証のみ）
-- **品質は組み込み済み** 自律的なレビューと改善を通じて
-- **ドキュメントは継続的** ワークフロー全体を通じて
+- **OpenSpec Official Repository**: https://github.com/Fission-AI/OpenSpec
+- **OpenSpec Official Site**: https://openspec.dev/
+- **Documentation**: https://github.com/Fission-AI/OpenSpec/tree/main/docs
 
 ---
 
-## クイックスタート
+## Philosophy First
 
-### Noctisから始める
+FF15 OpenSpec agents focus on **autonomous execution with minimal disruption**. They operate through a clear spec-driven process:
+- **Specs come first** via OpenSpec documents
+- **Minimal user intervention** (approval + verification only)
+- **Quality is built in** through autonomous review and improvement
+- **Documentation is continuous** throughout the workflow
 
-ほとんどのタスクは**Noctis**から始めます：
+---
+
+## Quick Start
+
+### Start with Noctis
+
+Most tasks start with **Noctis**:
 
 ```
-/noctis ショッピングカート機能を追加
-/noctis 認証モジュールをリファクタリング
-/noctis リアルタイム通知を追加
+/noctis Add a shopping cart feature
+/noctis Refactor the authentication module
+/noctis Add real-time notifications
 ```
 
-Noctisは：
-1. OpenSpecドキュメント（proposal、tasks、design）をあなたと作成
-2. 仕様の承認を依頼
-3. オプションでIssue作成をIrisに委任
-4. 実装をGladiolusに委任
-5. コード品質改善をPromptoに委任
-6. ドキュメントとアーカイブをIgnisに委任
-7. PR作成をLunafreyaに委任
-8. 最終検証のためPRリンクと共に通知
+Noctis will:
+1. Create OpenSpec documents (proposal, tasks, design) with you
+2. Request approval of the spec
+3. Optionally delegate Issue creation to Iris
+4. Delegate implementation to Gladiolus
+5. Delegate code quality improvement to Prompto
+6. Delegate documentation and archival to Ignis
+7. Delegate PR creation to Lunafreya
+8. Notify you with the PR link for final verification
 
 ---
 
-## チーム構造
+## Team Structure
 
 ```
                          @Noctis
-                  (オーケストレーター + 仕様作成者)
-                 OpenSpecを作成しワークフローを主導
+                  (Orchestrator + Spec Author)
+                 Creates OpenSpec and leads the workflow
                             |
         ┌───────────────────┼───────────────────┬───────────────────┬───────────────────┐
         |                   |                   |                   |                   |
      @Iris            @Gladiolus           @Prompto             @Ignis           @Lunafreya
-   (Issues)             (実装)              (品質)           (ドキュメント)           (PR)
-   GitHub              OpenSpec            レビュー            仕様を              プル
-   Issueを              に基づき            して品質          アーカイブ          リクエスト
-   管理                構築                を洗練         しドキュメント         を作成
-                                                          を更新
+   (Issues)           (Implementation)    (Quality)         (Documentation)         (PR)
+   Manages           Builds based        Reviews and       Archives specs       Creates
+   GitHub            on OpenSpec         refines for       and updates          pull
+   Issues            specs              quality           documentation        requests
 ```
 
-**キー**: 自律的な実行を伴う仕様駆動開発。
+**Key**: Spec-driven development with autonomous execution.
 
 ---
 
-## 各エージェントを使用するタイミング
+## When to Use Each Agent
 
-### 👑 Noctis（オーケストレーター + 仕様作成者）
+### 👑 Noctis (Orchestrator + Spec Author)
 
-**最適用途：** OpenSpec作成と調整されたワークフローが必要な複雑なタスク
+**Best for:** Complex tasks that need OpenSpec creation and coordinated workflow
 
-**例：**
+**Examples:**
 ```
-@Noctis OAuth2認証を実装
-@Noctis APIをRESTからGraphQLに移行
-@Noctis ユーザー管理機能を持つ管理ダッシュボードを構築
+@Noctis Implement OAuth2 authentication
+@Noctis Migrate the API from REST to GraphQL
+@Noctis Build an admin dashboard with user management
 ```
 
-**Noctisが行うこと：**
-- 対話を通じてOpenSpecドキュメントを作成（proposal.md、tasks.md、design.md）
-- 仕様のユーザー承認を依頼
-- 実装ワークフローを統括
-- 適切な専門家に委任
-- ワークフローを通じて進捗を追跡
-- 主要なマイルストーンでユーザーに通知
-- 完全で統合された結果を提供
+**What Noctis does:**
+- Creates OpenSpec documents through dialogue (proposal.md, tasks.md, design.md)
+- Requests user approval of the spec
+- Orchestrates the implementation workflow
+- Delegates to the appropriate specialists
+- Tracks progress throughout the workflow
+- Notifies the user at key milestones
+- Delivers a complete, integrated result
 
-**OpenSpec作成プロセス：**
-1. ユーザーと要件を議論
-2. proposal.md を作成（概要、動機、アプローチ）
-3. tasks.md を作成（実装チェックリスト）
-4. design.md を作成（詳細な技術設計）
-5. 進行前にユーザーの承認を依頼
+**OpenSpec Creation Process:**
+1. Discuss requirements with the user
+2. Create proposal.md (overview, motivation, approach)
+3. Create tasks.md (implementation checklist)
+4. Create design.md (detailed technical design)
+5. Request user approval before proceeding
 
-**Noctisがチームを呼び出すタイミング：**
-- Issue管理が必要 → `@Iris`
-- 実装が必要 → `@Gladiolus`
-- コード品質改善が必要 → `@Prompto`
-- ドキュメントとアーカイブが必要 → `@Ignis`
-- PR作成が必要 → `@Lunafreya`
+**When Noctis calls the team:**
+- Issue management needed → `@Iris`
+- Implementation needed → `@Gladiolus`
+- Code quality improvement needed → `@Prompto`
+- Documentation and archival needed → `@Ignis`
+- PR creation needed → `@Lunafreya`
 
 ---
 
-### 📋 Iris（Issue管理スペシャリスト）
+### 📋 Iris (Issue Management Specialist)
 
-**最適用途：** 仕様に基づいたGitHub Issueの作成と管理
+**Best for:** Creating and managing GitHub Issues based on specs
 
-**例：**
+**Examples:**
 ```
-@Iris ショッピングカート機能のIssueを作成
-@Iris Issue #42を実装状況で更新
-@Iris OpenSpecタスクに基づいてIssueを作成
+@Iris Create Issues for the shopping cart feature
+@Iris Update Issue #42 with implementation status
+@Iris Create Issues based on OpenSpec tasks
 ```
 
-**Irisが行うこと：**
-- 明確な説明でGitHub Issueを作成
-- Issue内でOpenSpecドキュメントを参照
-- Issueライフサイクルを管理（作成、更新、クローズ）
-- Issueをプルリクエストにリンク
-- 作業アイテムを整理
+**What Iris does:**
+- Creates GitHub Issues with clear descriptions
+- References OpenSpec documents within Issues
+- Manages Issue lifecycle (create, update, close)
+- Links Issues to pull requests
+- Organizes work items
 
-**Irisに相談するタイミング：**
-- OpenSpec承認後、実装前
-- 追跡のためのGitHub Issueが必要
-- 実装をIssueにリンクしたい
-- 複数の関連Issueを管理
+**When to consult Iris:**
+- After OpenSpec approval, before implementation
+- Need GitHub Issues for tracking
+- Want to link implementation to Issues
+- Managing multiple related Issues
 
 ---
 
-### 🧠 Ignis（ドキュメントとアーカイブスペシャリスト）
+### 🧠 Ignis (Documentation and Archive Specialist)
 
-**最適用途：** ドキュメント更新とOpenSpecアーカイブ
+**Best for:** Documentation updates and OpenSpec archival
 
-**例：**
+**Examples:**
 ```
-@Ignis 認証機能のドキュメントを更新
-@Ignis OpenSpecをアーカイブしCHANGELOGを更新
-@Ignis 新しいモジュールの包括的なREADMEを作成
+@Ignis Update the authentication feature documentation
+@Ignis Archive OpenSpec and update CHANGELOG
+@Ignis Create comprehensive README for the new module
 ```
 
-**Ignisが行うこと：**
-- 新機能と変更でREADMEを更新
-- バージョン履歴でCHANGELOGを維持
-- 完了したOpenSpecドキュメントをアーカイブ
-- 技術ドキュメントを作成
-- APIインターフェースと使用方法をドキュメント化
-- ドキュメントをコードと同期させる
+**What Ignis does:**
+- Updates README with new features and changes
+- Maintains CHANGELOG with version history
+- Archives completed OpenSpec documents
+- Creates technical documentation
+- Documents API interfaces and usage
+- Keeps documentation in sync with code
 
-**OpenSpecアーカイブ：**
-1. proposal.mdをopenspec/changes/archive/に移動
-2. タイムスタンプで名前変更（YYYY-MM-DD__description.md）
-3. ドキュメント内の参照を更新
-4. 変更の追跡可能性を保証
+**OpenSpec Archival:**
+1. Move proposal.md to openspec/changes/archive/
+2. Rename with timestamp (YYYY-MM-DD__description.md)
+3. Update references in documentation
+4. Ensure traceability of changes
 
-**ドキュメントの種類：**
-- README: プロジェクト概要とセットアップ
-- CHANGELOG: バージョン履歴と変更
-- 技術ドキュメント: アーキテクチャと設計
-- APIドキュメント: インターフェース仕様
-- OpenSpecアーカイブ: 履歴的な変更記録
+**Documentation Types:**
+- README: Project overview and setup
+- CHANGELOG: Version history and changes
+- Technical documentation: Architecture and design
+- API documentation: Interface specifications
+- OpenSpec archives: Historical change records
 
-**Ignisに相談するタイミング：**
-- 実装完了後
-- ドキュメント更新が必要
-- OpenSpecアーカイブが必要
-- 新しいプロジェクトドキュメントを作成
+**When to consult Ignis:**
+- After implementation is complete
+- Need documentation updates
+- Need OpenSpec archival
+- Creating new project documentation
 
 ---
 
-### 💪 Gladiolus（実装スペシャリスト）
+### 💪 Gladiolus (Implementation Specialist)
 
-**最適用途：** OpenSpecに基づいたコード記述と機能構築
+**Best for:** Writing code and building features based on OpenSpec
 
-**例：**
+**Examples:**
 ```
-@Gladiolus OpenSpec change-042に基づいて実装
-@Gladiolus ショッピングカート機能を構築
-@Gladiolus 仕様に従って入力検証を追加
+@Gladiolus Implement based on OpenSpec change-042
+@Gladiolus Build the shopping cart feature
+@Gladiolus Add input validation per the spec
 ```
 
-**Gladiolusが行うこと：**
-- OpenSpec設計に基づいて機能を実装
-- 仕様に正確に従う
-- クリーンで動作するコードを記述
-- 機能を徹底的にテスト
-- 完了まで実行
-- 進捗とブロッカーを報告
+**What Gladiolus does:**
+- Implements features based on OpenSpec design
+- Follows the spec precisely
+- Writes clean, working code
+- Tests features thoroughly
+- Drives to completion
+- Reports progress and blockers
 
-**実装哲学：**
-- OpenSpec design.mdを設計図として従う
-- コード品質標準を維持
-- 実装の一部としてテスト
-- 仕様を超えたスコープクリープはなし
-- ブロッキング問題について発言
+**Implementation Philosophy:**
+- Follow OpenSpec design.md as the blueprint
+- Maintain code quality standards
+- Include tests as part of implementation
+- No scope creep beyond the spec
+- Speak up about blocking issues
 
-**Gladiolusに相談するタイミング：**
-- OpenSpec承認後
-- 直接実装が必要
-- 明確な仕様からの機能構築
-- 明確な要件を持つバグ修正
+**When to consult Gladiolus:**
+- After OpenSpec approval
+- Need direct implementation
+- Building features from a clear spec
+- Bug fixes with clear requirements
 
 ---
 
-### ✨ Prompto（コード品質スペシャリスト）
+### ✨ Prompto (Code Quality Specialist)
 
-**最適用途：** コード品質改善、OpenSpec準拠、リファクタリング
+**Best for:** Code quality improvement, OpenSpec compliance, refactoring
 
-**例：**
+**Examples:**
 ```
-@Prompto 認証コードをレビューして改善
-@Prompto 最近の変更でOpenSpec準拠を保証
-@Prompto 保守性向上のためにリファクタリング
+@Prompto Review and improve the authentication code
+@Prompto Ensure OpenSpec compliance in recent changes
+@Prompto Refactor for better maintainability
 ```
 
-**Promptoが行うこと：**
-- OpenSpec準拠を検証（design.mdと照合確認）
-- review-policyガイドラインを実施
-- コード品質レビューを実行
-- 明確性と保守性のためにリファクタリング
-- 改善の機会を特定
-- 一貫したコードパターンを保証
-- 機能を壊さずに安全なリファクタリング
+**What Prompto does:**
+- Verifies OpenSpec compliance (cross-references design.md)
+- Enforces review-policy guidelines
+- Performs code quality reviews
+- Refactors for clarity and maintainability
+- Identifies improvement opportunities
+- Ensures consistent code patterns
+- Performs safe refactoring without breaking features
 
-**品質改善の焦点：**
-- **OpenSpec準拠**: 実装が設計と一致
-- **Review Policy**: プロジェクトレビューガイドラインに従う
-- **コードの明確性**: 読みやすく保守可能
-- **パターンの一貫性**: 確立されたパターンに従う
-- **ベストプラクティス**: 言語標準に準拠
+**Quality Improvement Focus:**
+- **OpenSpec Compliance**: Implementation matches design
+- **Review Policy**: Follows project review guidelines
+- **Code Clarity**: Readable and maintainable
+- **Pattern Consistency**: Follows established patterns
+- **Best Practices**: Adheres to language standards
 
-**リファクタリングアプローチ：**
-- 巧妙さより明確性
-- 命名とパターンの一貫性
-- 動作を変えずに保守性
-- テストを伴う安全な変換
+**Refactoring Approach:**
+- Clarity over cleverness
+- Consistent naming and patterns
+- Maintain functionality without behavior change
+- Safe transformations with tests
 
-**Promptoに相談するタイミング：**
-- 実装後、ドキュメント前
-- 品質改善が必要
-- OpenSpec準拠を保証
-- コードの可読性の懸念
-- 保守性向上のためのリファクタリング
+**When to consult Prompto:**
+- After implementation, before documentation
+- Need quality improvement
+- Ensuring OpenSpec compliance
+- Code readability concerns
+- Refactoring for better maintainability
 
 ---
 
-### 🌙 Lunafreya（PR作成スペシャリスト）
+### 🌙 Lunafreya (PR Creation Specialist)
 
-**最適用途：** プルリクエストの作成と最終化
+**Best for:** Creating and finalizing pull requests
 
-**例：**
+**Examples:**
 ```
-@Lunafreya 認証実装のPRを作成
-@Lunafreya 適切な説明でPRを最終化
-@Lunafreya Issue #42にリンクするPRを作成
+@Lunafreya Create a PR for the authentication implementation
+@Lunafreya Finalize the PR with proper description
+@Lunafreya Create a PR linking to Issue #42
 ```
 
-**Lunafreyaが行うこと：**
-- 明確な説明でプルリクエストを作成
-- PRを関連Issueにリンク
-- OpenSpecドキュメントを参照
-- CIが通過することを検証
-- すべての変更がコミットされていることを保証
-- マージとデプロイの準備
+**What Lunafreya does:**
+- Creates pull requests with clear descriptions
+- Links PRs to related Issues
+- References OpenSpec documents
+- Verifies CI passes
+- Ensures all changes are committed
+- Prepares for merge and deployment
 
-**PR作成チェックリスト：**
-1. すべてのコード変更がコミット済み
-2. テストが通過（CIがグリーン）
-3. ドキュメントが更新済み
-4. CHANGELOGが更新済み
-5. OpenSpecがアーカイブ済み
-6. Issue参照が含まれている
+**PR Creation Checklist:**
+1. All code changes committed
+2. Tests pass (CI is green)
+3. Documentation updated
+4. CHANGELOG updated
+5. OpenSpec archived
+6. Issue references included
 
-**Lunafreyaに相談するタイミング：**
-- ドキュメントとアーカイブが完了後
-- プルリクエストを作成する準備ができた
-- 完了した作業のPRが必要
-- 実装提供を最終化
+**When to consult Lunafreya:**
+- After documentation and archival are complete
+- Ready to create a pull request
+- Need a PR for completed work
+- Finalizing implementation delivery
 
 ---
 
-## 一般的なワークフロー
+## Common Workflows
 
-### 機能実装（OpenSpec駆動）
-
-```
-ユーザー: @Noctis ショッピングカート機能を追加
-
-ワークフロー:
-1. Noctis: ユーザーとOpenSpec（proposal、tasks、design）を作成
-2. ユーザー: 仕様を承認
-3. Iris: GitHub Issueを作成（要求された場合）
-4. Gladiolus: OpenSpec設計に基づいて実装
-5. Prompto: OpenSpec準拠と品質をレビュー
-6. Ignis: ドキュメントを更新しOpenSpecをアーカイブ
-7. Lunafreya: 適切な説明でPRを作成
-8. Noctis: ユーザーに通知、検証を依頼
-9. ユーザー: 検証してマージを承認
-```
-
-### OpenSpecを使用したバグ修正
+### Feature Implementation (OpenSpec-Driven)
 
 ```
-ユーザー: @Noctis セッションタイムアウトの問題を修正
+User: @Noctis Add a shopping cart feature
 
-ワークフロー:
-1. Noctis: 最小限のOpenSpec（proposal + tasks）を作成
-2. ユーザー: 修正アプローチを承認
-3. Gladiolus: 修正を実装
-4. Prompto: 品質をレビュー
-5. Ignis: CHANGELOGを更新
-6. Lunafreya: PRを作成
-7. Noctis: 完了を通知
+Workflow:
+1. Noctis: Creates OpenSpec (proposal, tasks, design) with user
+2. User: Approves the spec
+3. Iris: Creates GitHub Issues (if requested)
+4. Gladiolus: Implements based on OpenSpec design
+5. Prompto: Reviews OpenSpec compliance and quality
+6. Ignis: Updates documentation and archives OpenSpec
+7. Lunafreya: Creates PR with proper description
+8. Noctis: Notifies user, requests verification
+9. User: Verifies and approves merge
 ```
 
-### 直接エージェント使用
+### Bug Fix with OpenSpec
 
 ```
-ユーザー: @Iris CSVエクスポート機能のIssueを作成
-→ 直接Issue作成
+User: @Noctis Fix the session timeout issue
 
-ユーザー: @Gladiolus OpenSpec change-042に従って実装
-→ 直接実装
+Workflow:
+1. Noctis: Creates minimal OpenSpec (proposal + tasks)
+2. User: Approves fix approach
+3. Gladiolus: Implements the fix
+4. Prompto: Reviews quality
+5. Ignis: Updates CHANGELOG
+6. Lunafreya: Creates PR
+7. Noctis: Notifies completion
+```
 
-ユーザー: @Prompto 認証モジュールのコード品質を改善
-→ 直接品質改善
+### Direct Agent Usage
 
-ユーザー: @Lunafreya 完了した作業のPRを作成
-→ 直接PR作成
+```
+User: @Iris Create an Issue for CSV export feature
+→ Direct Issue creation
+
+User: @Gladiolus Implement per OpenSpec change-042
+→ Direct implementation
+
+User: @Prompto Improve code quality of the auth module
+→ Direct quality improvement
+
+User: @Lunafreya Create a PR for completed work
+→ Direct PR creation
 ```
 
 ---
 
-## ベストプラクティス
+## Best Practices
 
-### すべきこと
+### Do's
 
-✅ **新機能はNoctisから始める** - OpenSpecを作成させる
-✅ **実装前に仕様を承認** - 事前に明確性を確保
-✅ **自律的なワークフローを信頼** - 最小限の介入で十分
-✅ **最終結果を検証** - マージ前にPRを確認
-✅ **シンプルなタスクには直接エージェントを使用** - 適切な場合はオーケストレーションをスキップ
+✅ **Start with Noctis for new features** - Let it create the OpenSpec
+✅ **Approve specs before implementation** - Ensure clarity upfront
+✅ **Trust the autonomous workflow** - Minimal intervention is enough
+✅ **Verify the final result** - Review the PR before merging
+✅ **Use direct agents for simple tasks** - Skip orchestration when appropriate
 
-### すべきでないこと
+### Don'ts
 
-❌ **複雑な機能でOpenSpecをスキップしない** - スコープクリープを防ぐ
-❌ **ワークフローをマイクロマネージメントしない** - プロセスを信頼
-❌ **品質レビューをスキップしない** - Promptoが重要な問題をキャッチ
-❌ **ドキュメントをスキップしない** - Ignisがすべてを最新に保つ
-
----
-
-## タスクタイプ別の例
-
-### 新機能
-```
-@Noctis 二要素認証を追加
-```
-→ チーム調整を伴う完全なOpenSpecワークフロー
-
-### バグ修正
-```
-@Noctis 決済処理のタイムアウトを修正
-```
-→ 直接修正を伴う最小限のOpenSpec
-
-### Issue作成
-```
-@Iris 検索最適化機能のIssueを作成
-```
-→ Issue管理のために直接Irisへ
-
-### 実装
-```
-@Gladiolus OpenSpec change-042に従って実装
-```
-→ 明確な仕様で直接Gladiolusへ
-
-### コード品質
-```
-@Prompto 認証モジュールをレビューして改善
-```
-→ 品質改善のために直接Promptoへ
-
-### ドキュメント
-```
-@Ignis ドキュメントを更新してOpenSpecをアーカイブ
-```
-→ ドキュメントとアーカイブのために直接Ignisへ
-
-### PR作成
-```
-@Lunafreya 認証実装のPRを作成
-```
-→ 準備ができたら直接Lunafreyaへ
+❌ **Don't skip OpenSpec for complex features** - Prevents scope creep
+❌ **Don't micromanage the workflow** - Trust the process
+❌ **Don't skip quality reviews** - Prompto catches important issues
+❌ **Don't skip documentation** - Ignis keeps everything current
 
 ---
 
-## エージェント選択クイックリファレンス
+## Task Type Examples
 
-| 必要なこと | 呼び出す |
+### New Feature
+```
+@Noctis Add two-factor authentication
+```
+→ Full OpenSpec workflow with team coordination
+
+### Bug Fix
+```
+@Noctis Fix payment processing timeout
+```
+→ Minimal OpenSpec with direct fix
+
+### Issue Creation
+```
+@Iris Create an Issue for search optimization
+```
+→ Direct to Iris for Issue management
+
+### Implementation
+```
+@Gladiolus Implement per OpenSpec change-042
+```
+→ Direct to Gladiolus with clear spec
+
+### Code Quality
+```
+@Prompto Review and improve the auth module
+```
+→ Direct to Prompto for quality improvement
+
+### Documentation
+```
+@Ignis Update docs and archive OpenSpec
+```
+→ Direct to Ignis for documentation and archival
+
+### PR Creation
+```
+@Lunafreya Create PR for auth implementation
+```
+→ Direct to Lunafreya when ready
+
+---
+
+## Agent Selection Quick Reference
+
+| Need | Call |
 |------|------|
-| OpenSpecを伴う複雑な機能 | `@Noctis` |
-| GitHub Issueの作成/管理 | `@Iris` |
-| OpenSpecからの実装 | `@Gladiolus` |
-| コード品質改善 | `@Prompto` |
-| ドキュメントとアーカイブ | `@Ignis` |
-| プルリクエスト作成 | `@Lunafreya` |
-| ワークフロー統括 | `@Noctis` |
-| 素早いバグ修正 | `@Noctis`（最小限の仕様） |
+| Complex feature with OpenSpec | `@Noctis` |
+| GitHub Issue creation/management | `@Iris` |
+| Implementation from OpenSpec | `@Gladiolus` |
+| Code quality improvement | `@Prompto` |
+| Documentation and archival | `@Ignis` |
+| Pull request creation | `@Lunafreya` |
+| Workflow orchestration | `@Noctis` |
+| Quick bug fix | `@Noctis` (minimal spec) |
 
 ---
 
-## OpenSpecドキュメント
+## OpenSpec Documents
 
-ワークフローは3つの主要ドキュメントを中心に展開します：
+The workflow revolves around three main documents:
 
 ### proposal.md
-- **概要**: 何を構築するか？
-- **動機**: なぜ構築するか？
-- **アプローチ**: どのように構築するか？
-- **スコープ**: 何が含まれ、何が除外されるか？
+- **Overview**: What are we building?
+- **Motivation**: Why are we building it?
+- **Approach**: How will we build it?
+- **Scope**: What's included and excluded?
 
 ### tasks.md
-- **チェックリスト**: 段階的な実装タスク
-- **進捗追跡**: 完了したアイテムをマーク
-- **依存関係**: タスクの順序
+- **Checklist**: Step-by-step implementation tasks
+- **Progress tracking**: Mark completed items
+- **Dependencies**: Task ordering
 
 ### design.md
-- **技術設計**: 詳細な実装計画
-- **アーキテクチャ**: システム構造
-- **API契約**: インターフェースとデータモデル
-- **エッジケース**: エラーハンドリングと検証
+- **Technical design**: Detailed implementation plan
+- **Architecture**: System structure
+- **API contracts**: Interfaces and data models
+- **Edge cases**: Error handling and validation
 
 ---
 
-**覚えておいてください**: 自律的な実行と最小限のユーザー中断を伴う仕様駆動開発。
+**Remember**: Spec-driven development with autonomous execution and minimal user disruption.

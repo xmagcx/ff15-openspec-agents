@@ -1,17 +1,17 @@
-# レビューポリシー
+# Review Policy
 
-## コードレビューチェックリスト
+## Code Review Checklist
 
-PRを承認する前に以下を確認：
+Before approving a PR, verify:
 
-- [ ] すべてのユニットテストが通過
-- [ ] Lintエラーがない
-- [ ] TypeScript/VSCodeエラーがない
-- [ ] 開発ガイドラインに従っている
-- [ ] 変更が適切にドキュメント化されている
+- [ ] All unit tests pass
+- [ ] No lint errors
+- [ ] No TypeScript/VSCode errors
+- [ ] Follows development guidelines
+- [ ] Changes are properly documented
 
-## リファクタリング指針
+## Refactoring Guidelines
 
-- ネストされた三項演算子を避ける
-- 明確な変数名を使用
-- 機能を変更せず、可読性のみを改善
+- Avoid nested ternary operators
+- Use clear variable names
+- Improve readability without changing functionality

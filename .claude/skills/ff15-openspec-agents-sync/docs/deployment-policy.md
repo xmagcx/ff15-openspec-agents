@@ -1,14 +1,14 @@
-# デプロイメントポリシー
+# Deployment Policy
 
-## リリース前チェックリスト
+## Pre-Release Checklist
 
-- すべてのテストが通過していること
-- ドキュメントが更新されていること
-- CHANGELOGに変更内容が記載されていること
-- OpenSpec変更がアーカイブ済みであること
+- All tests are passing
+- Documentation is updated
+- CHANGELOG includes changes
+- OpenSpec changes are archived
 
-## PRマージ基準
+## PR Merge Criteria
 
-- レビュー承認が得られていること
-- CIが成功していること
-- コンフリクトが解消されていること
+- Review approval obtained
+- CI is successful
+- Conflicts are resolved

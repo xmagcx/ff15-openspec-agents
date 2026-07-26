@@ -1,8 +1,7 @@
 # FF15 OpenSpec Agents
 
-[English](README.md) | [日本語](README.ja.md)
 
-GitHub Copilot Agent Orchestration with OpenSpec-Driven Development
+Agent Orchestration with OpenSpec-Driven Development
 
 ## Overview
 
@@ -65,6 +64,7 @@ Each agent has a specific domain of expertise and works autonomously within thei
 - **GitHub Copilot** (VS Code or compatible editor)
 - **Git** (for version control)
 - **OpenSpec CLI** (installation steps below)
+- **Go** 1.18+ for the local `ff15` bootstrap CLI
 
 ## Quick Start
 
@@ -88,6 +88,7 @@ openspec init
 ```
 
 The initialization process:
+
 - Prompts you to select your AI tool (Claude Code, Cursor, etc.)
 - Creates `AGENTS.md` in your project root
 - Sets up `openspec/` directory structure
@@ -97,16 +98,19 @@ The initialization process:
 
 ### 3. Deploy FF15 Agents
 
-In your AI assistant (GitHub Copilot), execute:
+Use the Go CLI from this repository:
 
-```
-Run the ff15-openspec-agents-sync skill to deploy agent definitions and policies
+```bash
+ff15 sync --target .
 ```
 
 This will:
-- Sync agent definitions to `.claude/agents/`
+
+- Sync agent definitions to `.github/agents/`
+- Sync prompt definitions to `.github/prompts/`
 - Deploy policy documents to `docs/`
-- Configure the OpenSpec workflow
+- Update the managed policy block in `AGENTS.md`
+- Read sync assets from the `ff15` binary's embedded bundle (no local `.claude/skills/ff15-openspec-agents-sync` required at runtime)
 
 ### 4. Start Developing
 
@@ -118,49 +122,198 @@ Create an OpenSpec proposal for adding user authentication
 
 The workflow will guide you through specification, implementation, review, and PR creation.
 
+## FF15 CLI
+
+This repository also ships a Go CLI named `ff15` for Linux and Windows bootstrap work.
+
+### Build or install
+
+```bash
+go build ./cmd/ff15
+```
+
+or:
+
+```bash
+go install ./cmd/ff15
+```
+
+### Global installation
+
+After building, move the binary to a directory in your `PATH` so you can run `ff15` from anywhere.
+
+**Linux / macOS:**
+
+```bash
+sudo cp ff15 /usr/local/bin/ff15
+```
+
+**Windows:**
+
+1. Copy `ff15.exe` to a user directory, e.g. `C:\Users\<YourUser>\bin\`
+2. Add that directory to your `PATH` environment variable:
+   - Open **Settings → System → About → Advanced system settings → Environment Variables**
+   - Under **User variables**, edit `Path` and add `C:\Users\<YourUser>\bin\`
+3. Restart your terminal for the changes to take effect
+
+### Run the init flow
+
+Default interactive wizard:
+
+```bash
+ff15
+```
+
+Explicit flag form:
+
+```bash
+ff15 --init
+```
+
+Alias form:
+
+```bash
+ff15 init
+```
+
+Help output:
+
+```bash
+ff15 --help
+```
+
+Non-interactive dry run:
+
+```bash
+ff15 --dry-run --yes --ecosystems claude,kiro,pi,opencode --optional-tools rtk
+```
+
+### Run the sync flow
+
+List available sync assets:
+
+```bash
+ff15 sync --list
+```
+
+Sync everything into all supported ecosystem targets for a project:
+
+```bash
+ff15 sync --target .
+```
+
+Limit sync to specific ecosystems from the compiled binary:
+
+```bash
+ff15 sync --target . --ecosystems claude,kiro,pi,opencode
+```
+
+Sync selected files only:
+
+```bash
+ff15 sync --target . --ecosystems claude,opencode --agents noctis,ignis --prompts noctis --docs development-policy.md
+```
+
+Mode flags always keep the selected ecosystems' managed guidance files in sync as well:
+
+```bash
+ff15 sync --target . --ecosystems claude --agents-only
+ff15 sync --target . --ecosystems opencode --prompts-only
+ff15 sync --target . --ecosystems kiro --docs-only
+```
+
+Other useful flags:
+
+- `--ecosystems` accepts `claude`, `kiro`, `pi`, and `opencode`; if omitted, sync writes to all supported ecosystems
+- `--force` overwrites existing synced files without prompting
+- `--dry-run` prints planned changes without writing files
+
+`ff15 sync` embeds its bundled agents, prompts, docs, and `AGENTS.md` template into the Go binary with `embed`, so compiled binaries can run sync without depending on the repository's `.claude/skills/ff15-openspec-agents-sync` directory being present nearby.
+
+### What the CLI does
+
+- Detects Linux or Windows
+- Starts the existing Bubble Tea init wizard by default when run without a subcommand
+- Keeps `--help` focused on commands and flags
+- Keeps `--init` available as an explicit alias for the same init flow
+- Plans mandatory tools: Engram, CodeGraph, OpenSpec
+- Lets you opt into Headroom and RTK
+- Patches `AGENTS.md`, `CLAUDE.md`, `.pi/AGENTS.md`, and ecosystem-specific folders with managed blocks
+- Routes bundled agents, prompts, and docs into `.claude/agents/`, `.kiro/steering/`, and `.opencode/agents/` based on sync ecosystem selection
+
+### Deploy script
+
+`./deploy.sh` runs focused repository checks and then builds release binaries:
+
+- verifies required paths exist: `cmd/ff15`, `internal/ff15`, `openspec/changes`
+- fails if `gofmt -l cmd/ff15 internal/ff15` reports formatting drift
+- runs `go test ./cmd/ff15 ./internal/ff15`
+- builds `ff15` for Linux and `ff15.exe` for Windows in the current directory with `-trimpath -buildvcs=false`
+
 ## Project Structure
 
 ```
-ff15-openspec-agents/
-├── .claude/
-│   ├── agents/                         # Agent definitions (Noctis, Iris, etc.)
-│   └── skills/
-│       └── ff15-openspec-agents-sync/  # Skill for syncing agents
-│           ├── SKILL.md
-│           ├── USAGE.md                # Detailed usage guide
-│           └── scripts/
-├── openspec/
-│   ├── AGENTS.md                       # OpenSpec workflow instructions
-│   ├── project.md                      # Project context & conventions
-│   ├── changes/                        # Active proposals
-│   │   └── archive/                    # Completed changes
-│   └── specs/                          # Component specifications
-├── docs/                               # Development policies
+.
+├── AGENTS.md
+├── cmd
+│   └── ff15
+│       └── main.go
+├── deploy.sh
+├── docs
+│   ├── deployment-policy.md
 │   ├── development-policy.md
-│   ├── testing-policy.md
 │   ├── review-policy.md
-│   └── deployment-policy.md
-└── AGENTS.md                           # Root agent instructions
+│   └── testing-policy.md
+├── go.mod
+├── go.sum
+├── internal
+│   └── ff15
+│       ├── cli.go
+│       ├── cover.go
+│       ├── model.go
+│       ├── patcher.go
+│       ├── planner.go
+│       ├── runtime.go
+│       ├── sync.go
+│       ├── syncassets/        # Embedded sync assets
+│       │   ├── agents/
+│       │   ├── docs/
+│       │   └── prompts/
+│       └── ui.go              # Bubble Tea init wizard
+├── openspec/
+│   ├── AGENTS.md
+│   ├── changes/
+│   │   └── archive/
+│   └── project.md
+└── skin/
+    └── chocobo.png
+    └── ascii.txt
 ```
 
 ## Agents
 
 ### Noctis - Orchestrator & OpenSpec Creator
+
 Coordinates the entire workflow and creates OpenSpec proposals with detailed specifications.
 
 ### Iris - Issue Manager
+
 Creates and manages GitHub Issues based on user requirements and proposals.
 
 ### Gladiolus - Implementation Specialist
+
 Executes implementation following TDD principles, guided by OpenSpec specifications.
 
 ### Prompto - Code Quality Expert
+
 Reviews code against OpenSpec, applies review policies, and refactors for clarity and maintainability.
 
 ### Ignis - Documentation Specialist
+
 Updates documentation, archives completed OpenSpec changes, and ensures documentation completeness.
 
 ### Lunafreya - PR Creator
+
 Creates pull requests for completed implementations with proper descriptions and links.
 
 ## Development Workflow
@@ -210,6 +363,7 @@ graph TB
 ```
 
 **Key Points:**
+
 - 📋 **OpenSpec is central** - All agents reference the same specification
 - 👤 **Human approval required** - Users approve specs before implementation
 - 🔄 **Coordinated execution** - Noctis delegates to specialized agents
@@ -251,10 +405,10 @@ Verify with `openspec --version`.
 
 ### Skill sync fails
 
-Check that your project has the correct structure and the skill directory exists:
+`ff15 sync` now uses embedded assets, so a compiled binary does not need a nearby `.claude/skills/ff15-openspec-agents-sync/` directory. If sync still fails, rebuild or reinstall `ff15` so the binary includes the latest embedded bundle:
 
 ```bash
-ls .claude/skills/ff15-openspec-agents-sync/
+go build ./cmd/ff15
 ```
 
 ## Best Practices
@@ -267,8 +421,8 @@ ls .claude/skills/ff15-openspec-agents-sync/
 
 ## References
 
-- **OpenSpec**: https://github.com/Fission-AI/OpenSpec
-- **OpenSpec Official Site**: https://openspec.dev/
+- **OpenSpec**: <https://github.com/Fission-AI/OpenSpec>
+- **OpenSpec Official Site**: <https://openspec.dev/>
 - **Detailed Usage Guide**: [USAGE.md](.claude/skills/ff15-openspec-agents-sync/USAGE.md)
 
 ## License

@@ -1,7 +1,7 @@
 ---
 name: noctis
 agent: Noctis
-description: 'Noctisとタスクを開始 - チームを調整し、最終決定を行うマスターオーケストレーター。'
+description: 'Start a task with Noctis - the master orchestrator who coordinates the team and makes final decisions.'
 ---
 
-FF15チームのマスターオーケストレーターNoctisを起動します。
+Launches Noctis, the master orchestrator of the FF15 team.
